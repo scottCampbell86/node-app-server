@@ -4,6 +4,7 @@ const { isRegExp } = require('util');
 
   //create our server and define a function that fires everytime a request comes in;
 const server = http.createServer((req, res) => {
+
   const url = req.url;
   const method = req.method;
 
@@ -19,26 +20,26 @@ const server = http.createServer((req, res) => {
     const body = [];
 
     req.on('data', (chunk) => {
-      console.log(chunk);
       body.push(chunk);
     });
 
-    req.on('end', () => {
+    return req.on('end', () => {
       const parsedBody = Buffer.concat(body).toString();
       const message = parsedBody.split('=')[1];
-      fs.writeFileSync('message.txt', message);
+      fs.writeFile('message.txt', message, (err) => {
+        res.statusCode = 302;
+        res.setHeader('Location', '/');
+        return res.end();
+      });
     });
-
-    res.statusCode = 302;
-    res.setHeader('Location', '/');
-    return res.end();
   }
 
-  // res.setHeader('Content-Type', 'text/html');
-  // res.write('<html>');
-  // res.write('<h1>Hello from my Node.js server!</h1>');
-  // res.write('</html>');
-  // res.end();
+  res.setHeader('Content-Type', 'text/html');
+  res.write('<html>');
+  res.write('<h1>Hello from my Node.js server!</h1>');
+  res.write('</html>');
+  res.end();
+  
 });
 
   //initialze our server to 'listen' for events;
